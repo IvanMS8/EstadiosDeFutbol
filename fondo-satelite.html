@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estadios de la Serie A</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+        #map-container {
+            flex: 75%;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        #map {
+            flex: 1;
+        }
+        #resetButton {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+        }
+        #carousel-container {
+            flex: 35%;
+            background-color: #f8f9fa38;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2px;
+            box-shadow: -2px 0 6px rgba(0, 0, 0, 0.1);
+        }
+        .carousel {
+            width: 100%;
+            margin-bottom: 10px;
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <div id="map-container">
+        <div id="map"></div>
+        <button id="resetButton" class="btn btn-primary">Volver al mapa principal</button>
+    </div>
+    <div id="carousel-container">
+        <!-- Carrusel 1 -->
+        <div id="carousel1" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    <img src="img/i1.jpg" class="d-block w-100" alt="Imagen 1-1">
+                </div>
+                <div class="carousel-item">
+                    <img src="img/i2.jpg" class="d-block w-100" alt="Imagen 1-2">
+                </div>
+                <div class="carousel-item">
+                    <img src="img/i3.jpg" class="d-block w-100" alt="Imagen 1-2">
+                </div>
+                <div class="carousel-item">
+                    <img src="img/i4.jpg" class="d-block w-100" alt="Imagen 1-2">
+                </div>
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#carousel1" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Anterior</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carousel1" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Siguiente</span>
+            </button>
+        </div>
+        <!-- Carrusel 2 -->
+        <div id="carousel2" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    <img src="img/i01.jpg" class="d-block w-100" alt="Imagen 2-1">
+                </div>
+                <div class="carousel-item">
+                    <img src="img/i02.webp" class="d-block w-100" alt="Imagen 2-2">
+                </div>
+                <div class="carousel-item">
+                    <img src="img/i03.jpg" class="d-block w-100" alt="Imagen 2-2">
+                </div>
+                <div class="carousel-item">
+                    <img src="img/i04.jpg" class="d-block w-100" alt="Imagen 2-2">
+                </div>
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#carousel2" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Anterior</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carousel2" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Siguiente</span>
+            </button>
+        </div>
+        <!-- Carrusel 3 -->
+        <!-- <div id="carousel3" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    <img src="https://via.placeholder.com/300x200" class="d-block w-100" alt="Imagen 3-1">
+                </div>
+                <div class="carousel-item">
+                    <img src="https://via.placeholder.com/300x200" class="d-block w-100" alt="Imagen 3-2">
+                </div>
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#carousel3" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Anterior</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carousel3" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Siguiente</span>
+            </button>
+        </div> -->
+    </div>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Coordenadas y nivel de zoom iniciales
+        var initialCoords = [41.5331304714057, 12.790569808105827];
+        var initialZoom = 6;
+
+        // Inicializar el mapa
+        var map = L.map('map').setView(initialCoords, initialZoom);
+
+        // Añadir capa base de Google Maps
+        var googleSatellite = L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+            maxZoom: 20,
+            attribution: 'Map data &copy; <a href="https://www.google.com/maps">Google</a>',
+            subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+        }).addTo(map);
+
+        // Crear capas de marcadores
+        var markerLayer1 = L.layerGroup().addTo(map);
+
+        // Datos de ejemplo para los marcadores
+        var locations1 = [
+        { name: "Juventus Stadium", coords: [45.10955212244513, 7.6412804888308985] },
+            { name: "Estadio de San Siro", coords: [45.478125835249664, 9.123987713586239] },
+            { name: "Gewiss Stadium", coords: [45.709245252411144, 9.680858766524466] },
+            { name: "Stadio Diego Armando Maradona", coords: [40.82796897539936, 14.193023419865991] },
+            { name: "Estadio Artemio Franchi", coords: [43.78080347953577, 11.282725314945647] },
+            { name: "Stadio Olimpico", coords: [41.93397387372821, 12.454786643255648] },
+            { name: "Estadio Renato Dall'Ara", coords: [44.492292099721006, 11.309979325961539] },
+            { name: "Stadio Friuli", coords: [46.08153841559609, 13.199926166496182] },
+            { name: "Estadio Carlo Castellani", coords: [43.72652240673175, 10.954758016983368] },
+            { name: "Estadio Olímpico de Turín", coords: [45.04177118571133, 7.650041555007871] },
+            { name: "Estadio Ennio Tardini", coords: [44.79492167540342, 10.338467582750015] },
+            { name: "Estadio Luigi Ferraris", coords: [44.41649637562314, 8.952519141247699] },
+            { name: "Estadio Sant'Elia", coords: [39.199475660085014, 9.135021243535355] },
+            { name: "Stadio Ettore Giardiniero - Via del Mare", coords: [40.36512141773073, 18.208976411861997] },
+            { name: "Stadio Comunale G. Sinigaglia", coords: [45.813862121240206, 9.072373289756895] },
+            { name: "Stadio Marcantonio Bentegodi", coords: [45.435324508726666, 10.968605814948729] },
+            { name: "Estadio Brianteo", coords: [45.5830775915702, 9.30810913879942] },
+            { name: "Estadio Pier Luigi Penzo", coords: [45.42778718723838, 12.363989680019838] }
+        ];
+
+        // Añadir marcadores al grupo
+        locations1.forEach(function(location) {
+            var marker = L.marker(location.coords).bindPopup(location.name);
+
+            // Agregar evento click para centrar el mapa en el marcador
+            marker.on('click', function() {
+                map.setView(location.coords, 18); // Centrar y hacer zoom
+            });
+
+            markerLayer1.addLayer(marker);
+        });
+
+        // Función para restablecer el mapa a la vista inicial
+        document.getElementById('resetButton').addEventListener('click', function() {
+            map.setView(initialCoords, initialZoom);
+        });
+    </script>
+</body>
+</html>

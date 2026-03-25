@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <title>Estadios de la Champions</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  <style>
+    body {
+      display: flex;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    #map {
+      flex: 2;
+      height: 100%;
+    }
+
+    #controls {
+      flex: 0.5; /* Reducir el tamaño del contenedor de controles */
+      background-color: #f8f9fa;
+      padding: 20px;
+      box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+      overflow-y: auto;
+      /* margin-left: 20px; Margen izquierdo para mover hacia la derecha */
+    }
+
+    .btn-university {
+      margin-bottom: 10px;
+      width: 100%; /* Ajustar el ancho de los botones */
+      text-align: left;
+      display: block; /* Asegurarse de que el botón ocupe el ancho especificado */
+      margin-left: auto; /* Centrar horizontalmente en el contenedor */
+      margin-right: auto; /* Centrar horizontalmente en el contenedor */
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <div id="controls">
+    <h1>Estadios de la Champions</h1>
+    <button class="btn btn-primary btn-university" data-coords="40.453185622906446, -3.6883873483633307"><img src="img/real.png" alt="" height="55" width="45">    REAL MADRID</button>
+    <button class="btn btn-primary btn-university" data-coords="53.430908653875406, -2.9609321659720633"><img src="img/Logo-Liverpool.png" alt="" height="55" width="80"> Liverpool </button>
+    <button class="btn btn-primary btn-university" data-coords="45.47820864894374, 9.12403080217269"><img src="img/FC_Internazionale_Milano_2021.svg.png" alt="" height="55" width="60"> Inter </button>
+    <button class="btn btn-primary btn-university" data-coords="51.49262832078794, 7.451806511493437"><img src="img/Borussia.png" alt="" height="55" width="60"> Borussia Dortmund </button>
+    <button class="btn btn-primary btn-university" data-coords="45.70926294095123, 9.680838528900352"><img src="img/atalanta.png" alt="" height="55" width="35"> Atalanta  </button>
+    <button class="btn btn-primary btn-university" data-coords="51.03828989847441, 7.002222628605827"><img src="img/Leverkusen.png" alt="" height="55" width="50"> Leverkusen </button>
+    <button class="btn btn-primary btn-university" data-coords="51.55516322226508, -0.10838819703967047"><img src="img/Arsenal.png" alt="" height="55" width="50"> Arsenal </button>
+    <button class="btn btn-primary btn-university" data-coords="43.72760120889894, 7.415597498844456"><img src="img/Monaco.png" alt="" height="55" width="30"> Monaco </button>
+    <button class="btn btn-primary btn-university" data-coords="52.50917107015952, -1.884808006908357"><img src="img/Aston Villa.png" alt="" height="55" width="40"> Aston Villa </button>
+    <button class="btn btn-primary btn-university" data-coords="38.76121710604959, -9.160764535458123"><img src="img/Sporting Lisboa.png" alt="" height="55" width="35"> Sporting Lisboa </button>
+    <button class="btn btn-primary btn-university" data-coords="48.402905953556655, -4.461447847847011"><img src="img/Stade Brestois.png" alt="" height="55" width="50"> Stade Brestois </button>
+    <button class="btn btn-primary btn-university" data-coords="50.61195428262741, 3.1304322174113923"><img src="img/Lille.png" alt="" height="55" width="80"> Lille </button>
+    <button class="btn btn-primary btn-university" data-coords="48.21888151599898, 11.624686719224131"><img src="img/Bayern de Múnich.png" alt="" height="55" width="60"> Bayern de Múnich </button>
+    <button class="btn btn-primary btn-university" data-coords="38.75277837306152, -9.18468405416334"><img src="img/Benfica.png" alt="" height="55" width="50"> Benfica </button>
+    <button class="btn btn-primary btn-university" data-coords="40.43633919195447, -3.5995245529061526"><img src="img/Atletico Madrid.svg" alt="" height="55" width="80"> Atletico Madrid </button>
+    <button class="btn btn-primary btn-university" data-coords="45.47814038102248, 9.123966656468454"><img src="img/Milan.png" alt="" height="55" width="30"> Milan </button>
+    <button class="btn btn-primary btn-university" data-coords="53.48318108018509, -2.200384517492338"><img src="img/Mancheste City.png" alt="" height="55" width="60"> Mancheste City </button>
+    <button class="btn btn-primary btn-university" data-coords="51.44178172914992, 5.46746520079336"><img src="img/PSV.png" alt="" height="55" width="125"> PSV </button>
+    <button class="btn btn-primary btn-university" data-coords="45.10959844083524, 7.641248937455514"><img src="img/Juventus.webp" alt="" height="55" width="30"> Juventus </button>
+    <button class="btn btn-primary btn-university" data-coords="55.84975957604906, -4.205506293524915"><img src="img/Celtic FC.png" alt="" height="55" width="60"> Celtic FC </button>
+    <button class="btn btn-primary btn-university" data-coords="51.89388539595239, 4.523188903618391"><img src="img/Feyenoord.png" alt="" height="55" width="60"> Feyenoord </button>
+    <button class="btn btn-primary btn-university" data-coords="51.19335732171966, 3.1806219881084017"><img src="img/Club Brugge.png" alt="" height="55" width="50"> Club Brugge </button>
+    <button class="btn btn-primary btn-university" data-coords="45.81872661308648, 16.017980702469938"><img src="img/Dinamo Zagreb.png" alt="" height="55" width="60"> Dinamo Zagreb </button>
+    <button class="btn btn-primary btn-university" data-coords="48.84150107614689, 2.2530704857846624"><img src="img/Paris Saint Germain.png" alt="" height="55" width="60"> Paris Saint Germain </button>
+    <button class="btn btn-primary btn-university" data-coords="47.99473206340704, 37.78579152083143"><img src="img/Shajtar.png" alt="" height="55" width="55"> Shajtar </button>
+    <button class="btn btn-primary btn-university" data-coords="48.792288658362715, 9.232130801955652"><img src="img/Stuttgart.png" alt="" height="55" width="55"> Stuttgart </button>
+    <button class="btn btn-primary btn-university" data-coords="50.09985507760322, 14.415892659137437"><img src="img/Sparta.png" alt="" height="55" width="50"> Sparta Praha</button>
+    <button class="btn btn-primary btn-university" data-coords="47.04636953701579, 15.454776886964655"><img src="img/Sturm.png" alt="" height="55" width="60"> Sturm </button>
+    <button class="btn btn-primary btn-university" data-coords="41.961215142287784, 2.8284029587226307"><img src="img/Girona.png" alt="" height="55" width="60"> Girona </button>
+    <button class="btn btn-primary btn-university" data-coords="44.78322742868989, 20.464910756484116"><img src="img/Estrella Roja.png" alt="" height="55" width="60"> Estrella Roja </button>
+    <button class="btn btn-primary btn-university" data-coords="47.816322750103, 12.998198675910231"><img src="img/Red Bull Salzburg.png" alt="" height="55" width="60"> Red Bull Salzburg </button>
+    <button class="btn btn-primary btn-university" data-coords="44.492361816555864, 11.309986363798853"><img src="img/Bologna.png" alt="" height="55" width="40"> Bologna </button>
+    <button class="btn btn-primary btn-university" data-coords="40.73689117548226, -74.15034298655688"><img src="img/RB Leipzig.png" alt="" height="55" width="80"> RB Leipzig </button>
+    <button class="btn btn-primary btn-university" data-coords="48.16327520333702, 17.1368049335523"><img src="img/Slovan Bratislava.png" alt="" height="55" width="60"> Slovan Bratislava </button>
+    <button class="btn btn-primary btn-university" data-coords="46.963152760908976, 7.464850846159618"><img src="img/Young Boys.png" alt="" height="55" width="60"> Young Boys </button>
+
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Configurar el mapa
+    let map = L.map('map').setView([45.97361166668998, 11.803607668430969], 4);
+
+    // Agregar capa de satélite gratuita
+    L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+      maxZoom: 17
+    }).addTo(map);
+
+    // Agregar funcionalidad a los botones
+    document.querySelectorAll('.btn-university').forEach(button => {
+      button.addEventListener('click', function () {
+        let coords = this.getAttribute('data-coords').split(',');
+        map.flyTo([parseFloat(coords[0]), parseFloat(coords[1])], 17);
+      });
+    });
+  </script>
+</body>
+</html>
