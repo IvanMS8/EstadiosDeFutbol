@@ -4,75 +4,359 @@
   <title>Bundesliga</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+
   <style>
-    body {
-      display: flex;
-      height: 100vh;
-      margin: 0;
-      font-family: Arial, sans-serif;
+    :root {
+      --sidebar-width: 360px;
+      --bg: #eef3f8;
+      --panel-bg: #ffffff;
+      --panel-border: #dbe4ee;
+      --title-color: #0d1b2a;
+      --text-muted: #5f6b7a;
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      --radius-md: 14px;
     }
 
-    #map {
-      flex: 2;
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
       height: 100%;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: #1f2937;
+    }
+
+    body {
+      overflow: hidden;
+    }
+
+    .page-layout {
+      display: grid;
+      grid-template-columns: minmax(280px, var(--sidebar-width)) 1fr;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
     }
 
     #controls {
-      flex: 0.5; 
-      background-color: #f8f9fa;
-      padding: 20px;
-      box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+      height: 100vh;
+      background: var(--panel-bg);
+      border-right: 1px solid var(--panel-border);
+      padding: 20px 18px;
       overflow-y: auto;
+      overflow-x: hidden;
+      box-shadow: var(--shadow);
+      z-index: 2;
+    }
+
+    .controls-header {
+      position: sticky;
+      top: 0;
+      background: var(--panel-bg);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+      border-bottom: 1px solid #edf2f7;
+      z-index: 3;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 12px;
+      text-decoration: none;
+      font-weight: 600;
+      color: #0d6efd;
+      border: 1px solid #cfe2ff;
+      background: #f8fbff;
+      padding: 8px 12px;
+      border-radius: 10px;
+      transition: all 0.2s ease;
+    }
+
+    .back-link:hover {
+      background: #eaf3ff;
+      color: #0a58ca;
+    }
+
+    .controls-header h1 {
+      font-size: 1.45rem;
+      line-height: 1.2;
+      margin: 0 0 8px;
+      text-align: center;
+      color: var(--title-color);
+      font-weight: 700;
+    }
+
+    .controls-header p {
+      margin: 0;
+      text-align: center;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+
+    .teams-list {
+      display: grid;
+      gap: 10px;
     }
 
     .btn-university {
-      margin-bottom: 10px;
-      width: 100%; 
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
       text-align: left;
-      display: block; 
-      margin-left: auto; 
-      margin-right: auto; 
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      font-weight: 600;
+      min-height: 68px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
     }
 
-    h1 {
-      font-size: 1.5rem;
-      margin-bottom: 20px;
-      text-align: center;
+    .btn-university:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px rgba(13, 110, 253, 0.18);
+    }
+
+    .btn-university.active {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 22px rgba(13, 110, 253, 0.28);
+      border-color: rgba(255, 255, 255, 0.35);
+    }
+
+    .btn-university img {
+      width: 46px;
+      height: 46px;
+      object-fit: contain;
+      flex-shrink: 0;
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      padding: 2px;
+    }
+
+    .btn-label {
+      display: inline-block;
+      line-height: 1.2;
+      word-break: break-word;
+    }
+
+    .map-wrapper {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+      background: #dfe9f3;
+    }
+
+    #map {
+      width: 100%;
+      height: 100vh;
+    }
+
+    @media (max-width: 991.98px) {
+      html,
+      body {
+        height: auto;
+      }
+
+      body {
+        overflow: auto;
+      }
+
+      .page-layout {
+        grid-template-columns: 1fr;
+        grid-template-rows: 52vh auto;
+        height: auto;
+        overflow: visible;
+      }
+
+      .map-wrapper {
+        order: 1;
+        height: 52vh;
+        min-height: 52vh;
+      }
+
+      #map {
+        height: 52vh;
+      }
+
+      #controls {
+        order: 2;
+        height: auto;
+        max-height: none;
+        border-right: none;
+        border-top: 1px solid var(--panel-border);
+        box-shadow: none;
+        padding: 18px 14px 24px;
+      }
+
+      .controls-header {
+        position: static;
+        padding-bottom: 12px;
+      }
+
+      .controls-header h1 {
+        font-size: 1.3rem;
+      }
+
+      .teams-list {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 575.98px) {
+      .page-layout {
+        grid-template-rows: 46vh auto;
+      }
+
+      .map-wrapper {
+        height: 46vh;
+        min-height: 46vh;
+      }
+
+      #map {
+        height: 46vh;
+      }
+
+      .teams-list {
+        grid-template-columns: 1fr;
+      }
+
+      .btn-university {
+        min-height: 64px;
+        padding: 10px 12px;
+      }
+
+      .btn-university img {
+        width: 42px;
+        height: 42px;
+      }
+
+      .controls-header h1 {
+        font-size: 1.2rem;
+      }
+
+      .controls-header p {
+        font-size: 0.9rem;
+      }
     }
   </style>
 </head>
 <body>
-  <div id="map"></div>
-  <div id="controls">
-    <h1>Bundesliga</h1>
-    <button class="btn btn-primary btn-university" data-coords="48.218960986332334, 11.624750312572568"><img src="img/Bayern de Múnich.png" alt="" height="55" width="55"> Bayer Munich</button>
-    <button class="btn btn-primary btn-university" data-coords="51.03833725148694, 7.002299512725952"><img src="img/lever.png" alt="" height="55" width="65">  Leverkusen</button>
-    <button class="btn btn-primary btn-university" data-coords="50.06871151522885, 8.645471997329057"><img src="img/frank.png" alt="" height="55" width="57">  Frankfurt</button>
-    <button class="btn btn-primary btn-university" data-coords="51.34592980306863, 12.348258168563795"><img src="img/leipzig.png" alt="" height="55" width="65">  Leipzig</button>
-    <button class="btn btn-primary btn-university" data-coords="48.02159870255388, 7.8296235554769265"><img src="img/friburgo.png" alt="" height="55" width="49"> Friburgo</button>
-    <button class="btn btn-primary btn-university" data-coords="48.792420236482684, 9.232047810752247"><img src="img/stuttgart.png" alt="" height="55" width="49">  Stuttgart</button>
-    <button class="btn btn-primary btn-university" data-coords="49.98410284055402, 8.224413783832006"><img src="img/mainz.png" alt="" height="55" width="58">  Mainz 05</button>
-    <button class="btn btn-primary btn-university" data-coords="51.49276912992442, 7.451868126243691"><img src="img/borussia.png" alt="" height="55" width="49">  Borussia Dortmund</button>
-    <button class="btn btn-primary btn-university" data-coords="53.066951447893736, 8.837875753317437"><img src="img/werder.png" alt="" height="55" width="55">  Werder Bremen</button>
-    <button class="btn btn-primary btn-university" data-coords="52.432852428042736, 10.80385321095313"><img src="img/wolfs.png" alt="" height="55" width="40">  Wolfsburgo</button>
-    <button class="btn btn-primary btn-university" data-coords="51.17471775318, 6.38549476855424"><img src="img/monchengglad.png" alt="" height="55" width="58">  Mönchengladbach</button>
-    <button class="btn btn-primary btn-university" data-coords="52.45720496451092, 13.567209226297924"><img src="img/union.png" alt="" height="55" width="90">  Union Berlin</button>
-    <button class="btn btn-primary btn-university" data-coords="48.32332044918889, 10.886354124219517"><img src="img/augsburgo.png" alt="" height="55" width="49">  Augsburgo</button>
-    <button class="btn btn-primary btn-university" data-coords="49.238199587248225, 8.887958639612135"><img src="img/hoffenheim.png" alt="" height="55" width="45">  Hoffenheim</button>
-    <button class="btn btn-primary btn-university" data-coords="53.554721016403285, 9.967721711017056"><img src="img/pauli.png" alt="" height="55" width="49">  FC St. Pauli</button>
-    <button class="btn btn-primary btn-university" data-coords="48.66864703678965, 10.139360230686894"><img src="img/fcHeidenheim.png" alt="" height="55" width="49">  Heidenheim </button>
-    <button class="btn btn-primary btn-university" data-coords="54.34891637892431, 10.124349371164135"><img src="img/holstein.png" alt="" height="55" width="49">  Holstein Kiel</button>
-    <button class="btn btn-primary btn-university" data-coords="51.49009734049426, 7.23647008206427"><img src="img/bochum.png" alt="" height="55" width="52">  Bochum</button>
-    <!-- <button class="btn btn-primary btn-university" data-coords="39.47466711118002, -0.35821103989781766"><img src="img/Valencia.png" alt="" height="55" width="49">  Valencia</button>
-    <button class="btn btn-primary btn-university" data-coords="41.64461192843504, -4.761261950915497"><img src="img/Real Valladolid.png" alt="" height="55" width="49">  Real Valladolid</button> -->
-    
 
+  <main class="page-layout">
+    <aside id="controls">
+      <div class="controls-header">
+        <a href="index.html" class="back-link">← Volver al menú principal</a>
+        <h1>Bundesliga</h1>
+        <p>Selecciona un equipo para ubicar su estadio en el mapa.</p>
+      </div>
 
+      <div class="teams-list">
+        <button class="btn btn-primary btn-university" data-team="Bayern Munich" data-coords="48.218960986332334,11.624750312572568">
+          <img src="img/Bayern de Múnich.png" alt="Escudo del Bayern Munich">
+          <span class="btn-label">Bayern Munich</span>
+        </button>
 
+        <button class="btn btn-primary btn-university" data-team="Leverkusen" data-coords="51.03833725148694,7.002299512725952">
+          <img src="img/lever.png" alt="Escudo del Leverkusen">
+          <span class="btn-label">Leverkusen</span>
+        </button>
 
-  </div>
+        <button class="btn btn-primary btn-university" data-team="Frankfurt" data-coords="50.06871151522885,8.645471997329057">
+          <img src="img/frank.png" alt="Escudo del Frankfurt">
+          <span class="btn-label">Frankfurt</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Leipzig" data-coords="51.34592980306863,12.348258168563795">
+          <img src="img/leipzig.png" alt="Escudo del Leipzig">
+          <span class="btn-label">Leipzig</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Friburgo" data-coords="48.02159870255388,7.8296235554769265">
+          <img src="img/friburgo.png" alt="Escudo del Friburgo">
+          <span class="btn-label">Friburgo</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Stuttgart" data-coords="48.792420236482684,9.232047810752247">
+          <img src="img/stuttgart.png" alt="Escudo del Stuttgart">
+          <span class="btn-label">Stuttgart</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Mainz 05" data-coords="49.98410284055402,8.224413783832006">
+          <img src="img/mainz.png" alt="Escudo del Mainz 05">
+          <span class="btn-label">Mainz 05</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Borussia Dortmund" data-coords="51.49276912992442,7.451868126243691">
+          <img src="img/borussia.png" alt="Escudo del Borussia Dortmund">
+          <span class="btn-label">Borussia Dortmund</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Werder Bremen" data-coords="53.066951447893736,8.837875753317437">
+          <img src="img/werder.png" alt="Escudo del Werder Bremen">
+          <span class="btn-label">Werder Bremen</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Wolfsburgo" data-coords="52.432852428042736,10.80385321095313">
+          <img src="img/wolfs.png" alt="Escudo del Wolfsburgo">
+          <span class="btn-label">Wolfsburgo</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Mönchengladbach" data-coords="51.17471775318,6.38549476855424">
+          <img src="img/monchengglad.png" alt="Escudo del Mönchengladbach">
+          <span class="btn-label">Mönchengladbach</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Union Berlin" data-coords="52.45720496451092,13.567209226297924">
+          <img src="img/union.png" alt="Escudo del Union Berlin">
+          <span class="btn-label">Union Berlin</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Augsburgo" data-coords="48.32332044918889,10.886354124219517">
+          <img src="img/augsburgo.png" alt="Escudo del Augsburgo">
+          <span class="btn-label">Augsburgo</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Hoffenheim" data-coords="49.238199587248225,8.887958639612135">
+          <img src="img/hoffenheim.png" alt="Escudo del Hoffenheim">
+          <span class="btn-label">Hoffenheim</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="FC St. Pauli" data-coords="53.554721016403285,9.967721711017056">
+          <img src="img/pauli.png" alt="Escudo del FC St. Pauli">
+          <span class="btn-label">FC St. Pauli</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Heidenheim" data-coords="48.66864703678965,10.139360230686894">
+          <img src="img/fcHeidenheim.png" alt="Escudo del Heidenheim">
+          <span class="btn-label">Heidenheim</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Holstein Kiel" data-coords="54.34891637892431,10.124349371164135">
+          <img src="img/holstein.png" alt="Escudo del Holstein Kiel">
+          <span class="btn-label">Holstein Kiel</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Bochum" data-coords="51.49009734049426,7.23647008206427">
+          <img src="img/bochum.png" alt="Escudo del Bochum">
+          <span class="btn-label">Bochum</span>
+        </button>
+      </div>
+    </aside>
+
+    <section class="map-wrapper">
+      <div id="map"></div>
+    </section>
+  </main>
 
   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>

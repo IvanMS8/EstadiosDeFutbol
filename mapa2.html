@@ -4,70 +4,369 @@
   <title>Estadios de la Premier League</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+
   <style>
-    body {
-      display: flex;
-      height: 100vh;
-      margin: 0;
-      font-family: Arial, sans-serif;
+    :root {
+      --sidebar-width: 360px;
+      --bg: #eef3f8;
+      --panel-bg: #ffffff;
+      --panel-border: #dbe4ee;
+      --title-color: #0d1b2a;
+      --text-muted: #5f6b7a;
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      --radius-md: 14px;
     }
 
-    #map {
-      flex: 2;
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
       height: 100%;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: #1f2937;
+    }
+
+    body {
+      overflow: hidden;
+    }
+
+    .page-layout {
+      display: grid;
+      grid-template-columns: minmax(280px, var(--sidebar-width)) 1fr;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
     }
 
     #controls {
-      flex: 0.5;
-      background-color: #f8f9fa;
-      padding: 20px;
-      box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+      height: 100vh;
+      background: var(--panel-bg);
+      border-right: 1px solid var(--panel-border);
+      padding: 20px 18px;
       overflow-y: auto;
+      overflow-x: hidden;
+      box-shadow: var(--shadow);
+      z-index: 2;
+    }
+
+    .controls-header {
+      position: sticky;
+      top: 0;
+      background: var(--panel-bg);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+      border-bottom: 1px solid #edf2f7;
+      z-index: 3;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 12px;
+      text-decoration: none;
+      font-weight: 600;
+      color: #0d6efd;
+      border: 1px solid #cfe2ff;
+      background: #f8fbff;
+      padding: 8px 12px;
+      border-radius: 10px;
+      transition: all 0.2s ease;
+    }
+
+    .back-link:hover {
+      background: #eaf3ff;
+      color: #0a58ca;
+    }
+
+    .controls-header h1 {
+      font-size: 1.45rem;
+      line-height: 1.2;
+      margin: 0 0 8px;
+      text-align: center;
+      color: var(--title-color);
+      font-weight: 700;
+    }
+
+    .controls-header p {
+      margin: 0;
+      text-align: center;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+
+    .teams-list {
+      display: grid;
+      gap: 10px;
     }
 
     .btn-university {
-      margin-bottom: 10px;
       width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
       text-align: left;
-      display: block;
-      margin-left: auto;
-      margin-right: auto;
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      font-weight: 600;
+      min-height: 68px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
     }
 
-    h1 {
-      font-size: 1.5rem;
-      margin-bottom: 20px;
-      text-align: center;
+    .btn-university:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px rgba(13, 110, 253, 0.18);
+    }
+
+    .btn-university.active {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 22px rgba(13, 110, 253, 0.28);
+      border-color: rgba(255, 255, 255, 0.35);
+    }
+
+    .btn-university img {
+      width: 46px;
+      height: 46px;
+      object-fit: contain;
+      flex-shrink: 0;
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      padding: 2px;
+    }
+
+    .btn-label {
+      display: inline-block;
+      line-height: 1.2;
+      word-break: break-word;
+    }
+
+    .map-wrapper {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+      background: #dfe9f3;
+    }
+
+    #map {
+      width: 100%;
+      height: 100vh;
+    }
+
+    @media (max-width: 991.98px) {
+      html,
+      body {
+        height: auto;
+      }
+
+      body {
+        overflow: auto;
+      }
+
+      .page-layout {
+        grid-template-columns: 1fr;
+        grid-template-rows: 52vh auto;
+        height: auto;
+        overflow: visible;
+      }
+
+      .map-wrapper {
+        order: 1;
+        height: 52vh;
+        min-height: 52vh;
+      }
+
+      #map {
+        height: 52vh;
+      }
+
+      #controls {
+        order: 2;
+        height: auto;
+        max-height: none;
+        border-right: none;
+        border-top: 1px solid var(--panel-border);
+        box-shadow: none;
+        padding: 18px 14px 24px;
+      }
+
+      .controls-header {
+        position: static;
+        padding-bottom: 12px;
+      }
+
+      .controls-header h1 {
+        font-size: 1.3rem;
+      }
+
+      .teams-list {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 575.98px) {
+      .page-layout {
+        grid-template-rows: 46vh auto;
+      }
+
+      .map-wrapper {
+        height: 46vh;
+        min-height: 46vh;
+      }
+
+      #map {
+        height: 46vh;
+      }
+
+      .teams-list {
+        grid-template-columns: 1fr;
+      }
+
+      .btn-university {
+        min-height: 64px;
+        padding: 10px 12px;
+      }
+
+      .btn-university img {
+        width: 42px;
+        height: 42px;
+      }
+
+      .controls-header h1 {
+        font-size: 1.2rem;
+      }
+
+      .controls-header p {
+        font-size: 0.9rem;
+      }
     }
   </style>
 </head>
 <body>
-  <div id="map"></div>
-  <div id="controls">
-    <h1>Estadios de la Premier League</h1>
-    <button class="btn btn-primary btn-university" data-coords="53.43086664533288, -2.960807903395731"><img src="img/Logo-Liverpool.png" alt="" height="55" width="80"> Liverpool</button>
-    <button class="btn btn-primary btn-university" data-coords="51.48175989012499, -0.19092616799309306"><img src="img/Chelsea.png" alt="" height="55" width="55"> Chelsea</button>
-    <button class="btn btn-primary btn-university" data-coords="51.55510199488919, -0.1083662140270041"><img src="img/Arsenal.png" alt="" height="55" width="49">  Arsenal</button>
-    <button class="btn btn-primary btn-university" data-coords="53.48318908040764, -2.2003284362234186"><img src="img/Mancheste City.png" alt="" height="55" width="55">  Manchester City</button>
-    <button class="btn btn-primary btn-university" data-coords="52.942706755489866, -1.137166746366496"><img src="img/Nottingham Forest.png" alt="" height="55" width="32">  Nottingham Forest</button>
-    <button class="btn btn-primary btn-university" data-coords="52.50913680793875, -1.8848058339513427"><img src="img/Aston Villa.png" alt="" height="55" width="49">  Aston Villa</button>
-    <button class="btn btn-primary btn-university" data-coords="50.861584330923826, -0.08369058278447795"><img src="img/Brighton.png" alt="" height="55" width="55">  Brighton</button>
-    <button class="btn btn-primary btn-university" data-coords="50.905834402505015, -1.3909989921811028"><img src="img/Bournemouth.png" alt="" height="55" width="49">  Bournemouth</button>
-    <button class="btn btn-primary btn-university" data-coords="51.49080747164603, -0.28881388398122887"><img src="img/Brentford.png" alt="" height="55" width="55">  Brentford</button>
-    <button class="btn btn-primary btn-university" data-coords="51.4749137550335, -0.2215974403561655"><img src="img/Fulham.png" alt="" height="55" width="49">  Fulham</button>
-    <button class="btn btn-primary btn-university" data-coords="51.604237449802405, -0.06622253404133178"><img src="img/Tottenham.png" alt="" height="55" width="35">  Tottenham</button>
-    <button class="btn btn-primary btn-university" data-coords="54.97556759786522, -1.6216669241970099"><img src="img/Newcastle.png" alt="" height="55" width="52">  Newcastle</button>
-    <button class="btn btn-primary btn-university" data-coords="53.46313875020359, -2.291258930485577"><img src="img/Manchester United.png" alt="" height="55" width="55">  Manchester United</button>
-    <button class="btn btn-primary btn-university" data-coords="51.53868275257401, -0.01645954836805313"><img src="img/West Ham.png" alt="" height="55" width="49">  West Ham</button>
-    <button class="btn btn-primary btn-university" data-coords="53.43884704816954, -2.966274167894987"><img src="img/Everton.png" alt="" height="55" width="55">  Everton</button>
-    <button class="btn btn-primary btn-university" data-coords="52.62037674608001, -1.1421800008318246"><img src="img/Leicester.png" alt="" height="55" width="55">  Leicester</button>
-    <button class="btn btn-primary btn-university" data-coords="51.39829357001111, -0.08540856118305952"><img src="img/Crystal Palace.png" alt="" height="55" width="49">  Crystal Palace</button>
-    <button class="btn btn-primary btn-university" data-coords="52.05498462485572, 1.1453106983277357"><img src="img/Ipswich.png" alt="" height="55" width="49">  Ipswich</button>
-    <button class="btn btn-primary btn-university" data-coords="52.590260705880894, -2.1304462069944377"><img src="img/Wolverhampton.png" alt="" height="55" width="58">  Wolverhampton</button>
-    <button class="btn btn-primary btn-university" data-coords="50.90584451986526, -1.3909925458969161"><img src="img/Southampton.png" alt="" height="55" width="49">  Southampton</button>
-  </div>
+
+  <main class="page-layout">
+    <aside id="controls">
+      <div class="controls-header">
+        <a href="index.html" class="back-link">← Volver al menú principal</a>
+        <h1>Estadios de la Premier League</h1>
+        <p>Selecciona un equipo para ubicar su estadio en el mapa.</p>
+      </div>
+
+      <div class="teams-list">
+        <button class="btn btn-primary btn-university" data-team="Liverpool" data-coords="53.43086664533288,-2.960807903395731">
+          <img src="img/Logo-Liverpool.png" alt="Escudo del Liverpool">
+          <span class="btn-label">Liverpool</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Chelsea" data-coords="51.48175989012499,-0.19092616799309306">
+          <img src="img/Chelsea.png" alt="Escudo del Chelsea">
+          <span class="btn-label">Chelsea</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Arsenal" data-coords="51.55510199488919,-0.1083662140270041">
+          <img src="img/Arsenal.png" alt="Escudo del Arsenal">
+          <span class="btn-label">Arsenal</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Manchester City" data-coords="53.48318908040764,-2.2003284362234186">
+          <img src="img/Mancheste City.png" alt="Escudo del Manchester City">
+          <span class="btn-label">Manchester City</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Nottingham Forest" data-coords="52.942706755489866,-1.137166746366496">
+          <img src="img/Nottingham Forest.png" alt="Escudo del Nottingham Forest">
+          <span class="btn-label">Nottingham Forest</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Aston Villa" data-coords="52.50913680793875,-1.8848058339513427">
+          <img src="img/Aston Villa.png" alt="Escudo del Aston Villa">
+          <span class="btn-label">Aston Villa</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Brighton" data-coords="50.861584330923826,-0.08369058278447795">
+          <img src="img/Brighton.png" alt="Escudo del Brighton">
+          <span class="btn-label">Brighton</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Bournemouth" data-coords="50.905834402505015,-1.3909989921811028">
+          <img src="img/Bournemouth.png" alt="Escudo del Bournemouth">
+          <span class="btn-label">Bournemouth</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Brentford" data-coords="51.49080747164603,-0.28881388398122887">
+          <img src="img/Brentford.png" alt="Escudo del Brentford">
+          <span class="btn-label">Brentford</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Fulham" data-coords="51.4749137550335,-0.2215974403561655">
+          <img src="img/Fulham.png" alt="Escudo del Fulham">
+          <span class="btn-label">Fulham</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Tottenham" data-coords="51.604237449802405,-0.06622253404133178">
+          <img src="img/Tottenham.png" alt="Escudo del Tottenham">
+          <span class="btn-label">Tottenham</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Newcastle" data-coords="54.97556759786522,-1.6216669241970099">
+          <img src="img/Newcastle.png" alt="Escudo del Newcastle">
+          <span class="btn-label">Newcastle</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Manchester United" data-coords="53.46313875020359,-2.291258930485577">
+          <img src="img/Manchester United.png" alt="Escudo del Manchester United">
+          <span class="btn-label">Manchester United</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="West Ham" data-coords="51.53868275257401,-0.01645954836805313">
+          <img src="img/West Ham.png" alt="Escudo del West Ham">
+          <span class="btn-label">West Ham</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Everton" data-coords="53.43884704816954,-2.966274167894987">
+          <img src="img/Everton.png" alt="Escudo del Everton">
+          <span class="btn-label">Everton</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Leicester" data-coords="52.62037674608001,-1.1421800008318246">
+          <img src="img/Leicester.png" alt="Escudo del Leicester">
+          <span class="btn-label">Leicester</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Crystal Palace" data-coords="51.39829357001111,-0.08540856118305952">
+          <img src="img/Crystal Palace.png" alt="Escudo del Crystal Palace">
+          <span class="btn-label">Crystal Palace</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Ipswich" data-coords="52.05498462485572,1.1453106983277357">
+          <img src="img/Ipswich.png" alt="Escudo del Ipswich">
+          <span class="btn-label">Ipswich</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Wolverhampton" data-coords="52.590260705880894,-2.1304462069944377">
+          <img src="img/Wolverhampton.png" alt="Escudo del Wolverhampton">
+          <span class="btn-label">Wolverhampton</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Southampton" data-coords="50.90584451986526,-1.3909925458969161">
+          <img src="img/Southampton.png" alt="Escudo del Southampton">
+          <span class="btn-label">Southampton</span>
+        </button>
+      </div>
+    </aside>
+
+    <section class="map-wrapper">
+      <div id="map"></div>
+    </section>
+  </main>
 
   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>

@@ -4,75 +4,369 @@
   <title>Estadios de la Liga Española</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+
   <style>
-    body {
-      display: flex;
-      height: 100vh;
-      margin: 0;
-      font-family: Arial, sans-serif;
+    :root {
+      --sidebar-width: 360px;
+      --bg: #eef3f8;
+      --panel-bg: #ffffff;
+      --panel-border: #dbe4ee;
+      --title-color: #0d1b2a;
+      --text-muted: #5f6b7a;
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      --radius-md: 14px;
     }
 
-    #map {
-      flex: 2;
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
       height: 100%;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: #1f2937;
+    }
+
+    body {
+      overflow: hidden;
+    }
+
+    .page-layout {
+      display: grid;
+      grid-template-columns: minmax(280px, var(--sidebar-width)) 1fr;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
     }
 
     #controls {
-      flex: 0.5; 
-      background-color: #f8f9fa;
-      padding: 20px;
-      box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+      height: 100vh;
+      background: var(--panel-bg);
+      border-right: 1px solid var(--panel-border);
+      padding: 20px 18px;
       overflow-y: auto;
+      overflow-x: hidden;
+      box-shadow: var(--shadow);
+      z-index: 2;
+    }
+
+    .controls-header {
+      position: sticky;
+      top: 0;
+      background: var(--panel-bg);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+      border-bottom: 1px solid #edf2f7;
+      z-index: 3;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 12px;
+      text-decoration: none;
+      font-weight: 600;
+      color: #0d6efd;
+      border: 1px solid #cfe2ff;
+      background: #f8fbff;
+      padding: 8px 12px;
+      border-radius: 10px;
+      transition: all 0.2s ease;
+    }
+
+    .back-link:hover {
+      background: #eaf3ff;
+      color: #0a58ca;
+    }
+
+    .controls-header h1 {
+      font-size: 1.45rem;
+      line-height: 1.2;
+      margin: 0 0 8px;
+      text-align: center;
+      color: var(--title-color);
+      font-weight: 700;
+    }
+
+    .controls-header p {
+      margin: 0;
+      text-align: center;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+
+    .teams-list {
+      display: grid;
+      gap: 10px;
     }
 
     .btn-university {
-      margin-bottom: 10px;
-      width: 100%; 
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
       text-align: left;
-      display: block; 
-      margin-left: auto; 
-      margin-right: auto; 
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      font-weight: 600;
+      min-height: 68px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
     }
 
-    h1 {
-      font-size: 1.5rem;
-      margin-bottom: 20px;
-      text-align: center;
+    .btn-university:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px rgba(13, 110, 253, 0.18);
+    }
+
+    .btn-university.active {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 22px rgba(13, 110, 253, 0.28);
+      border-color: rgba(255, 255, 255, 0.35);
+    }
+
+    .btn-university img {
+      width: 46px;
+      height: 46px;
+      object-fit: contain;
+      flex-shrink: 0;
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      padding: 2px;
+    }
+
+    .btn-label {
+      display: inline-block;
+      line-height: 1.2;
+      word-break: break-word;
+    }
+
+    .map-wrapper {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+      background: #dfe9f3;
+    }
+
+    #map {
+      width: 100%;
+      height: 100vh;
+    }
+
+    @media (max-width: 991.98px) {
+      html,
+      body {
+        height: auto;
+      }
+
+      body {
+        overflow: auto;
+      }
+
+      .page-layout {
+        grid-template-columns: 1fr;
+        grid-template-rows: 52vh auto;
+        height: auto;
+        overflow: visible;
+      }
+
+      .map-wrapper {
+        order: 1;
+        height: 52vh;
+        min-height: 52vh;
+      }
+
+      #map {
+        height: 52vh;
+      }
+
+      #controls {
+        order: 2;
+        height: auto;
+        max-height: none;
+        border-right: none;
+        border-top: 1px solid var(--panel-border);
+        box-shadow: none;
+        padding: 18px 14px 24px;
+      }
+
+      .controls-header {
+        position: static;
+        padding-bottom: 12px;
+      }
+
+      .controls-header h1 {
+        font-size: 1.3rem;
+      }
+
+      .teams-list {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 575.98px) {
+      .page-layout {
+        grid-template-rows: 46vh auto;
+      }
+
+      .map-wrapper {
+        height: 46vh;
+        min-height: 46vh;
+      }
+
+      #map {
+        height: 46vh;
+      }
+
+      .teams-list {
+        grid-template-columns: 1fr;
+      }
+
+      .btn-university {
+        min-height: 64px;
+        padding: 10px 12px;
+      }
+
+      .btn-university img {
+        width: 42px;
+        height: 42px;
+      }
+
+      .controls-header h1 {
+        font-size: 1.2rem;
+      }
+
+      .controls-header p {
+        font-size: 0.9rem;
+      }
     }
   </style>
 </head>
 <body>
-  <div id="map"></div>
-  <div id="controls">
-    <h1>Estadios de la Liga Española</h1>
-    <button class="btn btn-primary btn-university" data-coords="40.453185622906446, -3.6883873483633307"><img src="img/real.png" alt="" height="55" width="42">  REAL MADRID</button>
-    <button class="btn btn-primary btn-university" data-coords="41.380895898224, 2.1228370947158037"><img src="img/Barcelona.png" alt="" height="55" width="55">  Barcelona</button>
-    <button class="btn btn-primary btn-university" data-coords="40.43622493875199, -3.5994885349714525"><img src="img/Atletico Madrid.svg" alt="" height="55" width="49">  Atletico Madrid</button>
-    <button class="btn btn-primary btn-university" data-coords="43.26416788264293, -2.9493655143039654"><img src="img/Club Athletic Bilbao.png" alt="" height="55" width="49">  Club Athletic Bilbao</button>
-    <button class="btn btn-primary btn-university" data-coords="39.94412920586721, -0.10349587726075737"><img src="img/Villarreal.png" alt="" height="55" width="49">  Villarreal</button>
-    <button class="btn btn-primary btn-university" data-coords="43.30137820703538, -1.9735761767808546"><img src="img/Real Sociedad.png" alt="" height="55" width="49">  Real Sociedad</button>
-    <button class="btn btn-primary btn-university" data-coords="42.79671187965254, -1.6371465385693815"><img src="img/Osasuna.png" alt="" height="55" width="45">  Osasuna</button>
-    <button class="btn btn-primary btn-university" data-coords="39.58997399789721, 2.6300938819072956"><img src="img/Mallorca.png" alt="" height="55" width="49">  Mallorca</button>
-    <button class="btn btn-primary btn-university" data-coords="41.961229546150804, 2.828381743371524"><img src="img/Girona.png" alt="" height="55" width="55">  Girona</button>
-    <button class="btn btn-primary btn-university" data-coords="42.211891443914446, -8.739682568767249"><img src="img/Celta de Vigo.png" alt="" height="55" width="40">  Celta de Vigo</button>
-    <button class="btn btn-primary btn-university" data-coords="37.3564909558851, -5.981715418345649"><img src="img/Real betis.png" alt="" height="55" width="58">  Real betis</button>
-    <button class="btn btn-primary btn-university" data-coords="40.391842086976624, -3.6586067914244924"><img src="img/Rayo Vallecano.png" alt="" height="55" width="55">  Rayo Vallecano</button>
-    <button class="btn btn-primary btn-university" data-coords="37.384098919608846, -5.9705863749582155"><img src="img/Sevilla.png" alt="" height="55" width="49">  Sevilla</button>
-    <button class="btn btn-primary btn-university" data-coords="28.100424602533487, -15.456711841711293"><img src="img/Las Palmas.png" alt="" height="55" width="45">  Las Palmas</button>
-    <button class="btn btn-primary btn-university" data-coords="42.83710482455911, -2.688259804101683"><img src="img/Alaves.png" alt="" height="55" width="49">  Alaves</button>
-    <button class="btn btn-primary btn-university" data-coords="40.34050218272423, -3.7606900630765465"><img src="img/Leganés.png" alt="" height="55" width="49">  Leganés</button>
-    <button class="btn btn-primary btn-university" data-coords="40.32575665551171, -3.714955338343527"><img src="img/Getafe.png" alt="" height="55" width="49">  Getafe</button>
-    <button class="btn btn-primary btn-university" data-coords="41.34789750745137, 2.075643794351932"><img src="img/Espayol.png" alt="" height="55" width="52">  Espayol</button>
-    <button class="btn btn-primary btn-university" data-coords="39.47466711118002, -0.35821103989781766"><img src="img/Valencia.png" alt="" height="55" width="49">  Valencia</button>
-    <button class="btn btn-primary btn-university" data-coords="41.64461192843504, -4.761261950915497"><img src="img/Real Valladolid.png" alt="" height="55" width="49">  Real Valladolid</button>
-    
 
+  <main class="page-layout">
+    <aside id="controls">
+      <div class="controls-header">
+        <a href="index.html" class="back-link">← Volver al menú principal</a>
+        <h1>Estadios de la Liga Española</h1>
+        <p>Selecciona un equipo para ubicar su estadio en el mapa.</p>
+      </div>
 
+      <div class="teams-list">
+        <button class="btn btn-primary btn-university" data-team="Real Madrid" data-coords="40.453185622906446,-3.6883873483633307">
+          <img src="img/real.png" alt="Escudo del Real Madrid">
+          <span class="btn-label">Real Madrid</span>
+        </button>
 
+        <button class="btn btn-primary btn-university" data-team="Barcelona" data-coords="41.380895898224,2.1228370947158037">
+          <img src="img/Barcelona.png" alt="Escudo del Barcelona">
+          <span class="btn-label">Barcelona</span>
+        </button>
 
-  </div>
+        <button class="btn btn-primary btn-university" data-team="Atlético de Madrid" data-coords="40.43622493875199,-3.5994885349714525">
+          <img src="img/Atletico Madrid.svg" alt="Escudo del Atlético de Madrid">
+          <span class="btn-label">Atlético de Madrid</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Athletic Club" data-coords="43.26416788264293,-2.9493655143039654">
+          <img src="img/Club Athletic Bilbao.png" alt="Escudo del Athletic Club">
+          <span class="btn-label">Athletic Club</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Villarreal" data-coords="39.94412920586721,-0.10349587726075737">
+          <img src="img/Villarreal.png" alt="Escudo del Villarreal">
+          <span class="btn-label">Villarreal</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Real Sociedad" data-coords="43.30137820703538,-1.9735761767808546">
+          <img src="img/Real Sociedad.png" alt="Escudo de la Real Sociedad">
+          <span class="btn-label">Real Sociedad</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Osasuna" data-coords="42.79671187965254,-1.6371465385693815">
+          <img src="img/Osasuna.png" alt="Escudo de Osasuna">
+          <span class="btn-label">Osasuna</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Mallorca" data-coords="39.58997399789721,2.6300938819072956">
+          <img src="img/Mallorca.png" alt="Escudo del Mallorca">
+          <span class="btn-label">Mallorca</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Girona" data-coords="41.961229546150804,2.828381743371524">
+          <img src="img/Girona.png" alt="Escudo del Girona">
+          <span class="btn-label">Girona</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Celta de Vigo" data-coords="42.211891443914446,-8.739682568767249">
+          <img src="img/Celta de Vigo.png" alt="Escudo del Celta de Vigo">
+          <span class="btn-label">Celta de Vigo</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Real Betis" data-coords="37.3564909558851,-5.981715418345649">
+          <img src="img/Real betis.png" alt="Escudo del Real Betis">
+          <span class="btn-label">Real Betis</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Rayo Vallecano" data-coords="40.391842086976624,-3.6586067914244924">
+          <img src="img/Rayo Vallecano.png" alt="Escudo del Rayo Vallecano">
+          <span class="btn-label">Rayo Vallecano</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Sevilla" data-coords="37.384098919608846,-5.9705863749582155">
+          <img src="img/Sevilla.png" alt="Escudo del Sevilla">
+          <span class="btn-label">Sevilla</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Las Palmas" data-coords="28.100424602533487,-15.456711841711293">
+          <img src="img/Las Palmas.png" alt="Escudo de Las Palmas">
+          <span class="btn-label">Las Palmas</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Alavés" data-coords="42.83710482455911,-2.688259804101683">
+          <img src="img/Alaves.png" alt="Escudo del Alavés">
+          <span class="btn-label">Alavés</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Leganés" data-coords="40.34050218272423,-3.7606900630765465">
+          <img src="img/Leganés.png" alt="Escudo del Leganés">
+          <span class="btn-label">Leganés</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Getafe" data-coords="40.32575665551171,-3.714955338343527">
+          <img src="img/Getafe.png" alt="Escudo del Getafe">
+          <span class="btn-label">Getafe</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Espanyol" data-coords="41.34789750745137,2.075643794351932">
+          <img src="img/Espayol.png" alt="Escudo del Espanyol">
+          <span class="btn-label">Espanyol</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Valencia" data-coords="39.47466711118002,-0.35821103989781766">
+          <img src="img/Valencia.png" alt="Escudo del Valencia">
+          <span class="btn-label">Valencia</span>
+        </button>
+
+        <button class="btn btn-primary btn-university" data-team="Real Valladolid" data-coords="41.64461192843504,-4.761261950915497">
+          <img src="img/Real Valladolid.png" alt="Escudo del Real Valladolid">
+          <span class="btn-label">Real Valladolid</span>
+        </button>
+      </div>
+    </aside>
+
+    <section class="map-wrapper">
+      <div id="map"></div>
+    </section>
+  </main>
 
   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
